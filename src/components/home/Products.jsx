@@ -161,35 +161,35 @@ function Products() {
         <i className="fas fa-plus"></i>
       </button>
 
-      <div className="container mt-5 pt-5">
+      <div className="container mt-5">
         <h2 className="titlee text-center mb-4">Total Produk</h2>
 
         {products.length === 0 ? (
           <p className="text-center">Belum ada produk.</p>
         ) : (
-          <div className="row row-cols-1 row-cols-md-3 g-4 p-3">
+          <div className="row p-3 justify-content-center">
             {products.map((p) => (
-              <div className="col" key={p.id}>
-                <div className="card h-100">
+              <div className="col-md-6 col-lg-4 mb-4" key={p.id}>
+                <div className="card justify-content-center align-items-center p-4">
                   <img
                     src={p.image}
-                    className="card-img-top"
+                    className="card-img-top text-center"
                     alt={p.name}
                     style={{ objectFit: "cover", height: "200px" }}
                   />
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title">{p.name}</h5>
+                  <div className="card-body text-center">
+                    <h5 className="card-title p-3">{p.name}</h5>
                     <p className="card-text">Harga: {p.price}</p>
                     <p className="card-text">Stok: {p.stock}</p>
                     <div className="mt-auto">
                       <button
-                        className="btn btn-primary me-2"
+                        className="btn btn-primary mx-2 mt-3"
                         onClick={() => bukaModalEdit(p.id)}
                       >
                         Edit
                       </button>
                       <button
-                        className="btn btn-danger"
+                        className="btn btn-danger mx-2 mt-3"
                         onClick={() => handleHapus(p.name, p.id)}
                       >
                         Hapus
