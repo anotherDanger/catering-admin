@@ -1,0 +1,35 @@
+.dashboard-container{
+    margin-top: 5rem;
+}
+
+
+ body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      transition: background-color 0.3s ease;
+    }
+
+    .card-stat {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: none;
+      border-radius: 1rem;
+    }
+
+    .card-stat:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .dark-mode {
+      background-color: #121212 !important;
+      color: white;
+    }
+
+    .dark-mode .card {
+      background-color: #1e1e1e;
+      color: white;
+    }
+
+    .dark-mode .text-muted {
+      color: #bbb !important;
+    }

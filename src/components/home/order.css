@@ -1,0 +1,39 @@
+/* ------------order----------------
+
+.order-container .box-container .box{
+    background-color: #fff;
+}
+section .title{
+    text-align: center;
+    margin-top: 2rem;
+    color: black;
+}
+.order-container{
+    padding: 3% 7%;
+}
+.order-container .box-container{
+    grid-template-columns: repeat(auto-fit, minmax(20rem,1fr));
+    justify-content: center;
+    align-items: center;
+}
+
+.order-container form input{
+    box-shadow: none;
+    border: none;
+    width: 40%;
+    padding:5px ;
+    border-radius: 5px;
+    text-transform: capitalize;
+    background-color: #D78325;
+    color: white;
+    margin: 1rem 1rex;
+
+}
+
+.order-container form input:hover{
+    background-color: #394034;
+}
+
+.box-container .delete{
+    padding: 1rex 10%;
+} */
