@@ -1,7 +1,9 @@
 async function getProducts() {
-    const request = new Request("http://localhost:8080/v1/products", {
+    const accessToken = localStorage.getItem('access_token');
+    const request = new Request("http://localhost:8080/api/v1/products", {
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`
         },
         method: "GET"
     });
@@ -15,36 +17,42 @@ async function getProducts() {
         const data = await response.json();
         return data.data;
     } catch (error) {
-        console.error("Fetch error in getProducts:", error.message);
         return null;
     }
 }
 
 export async function addProduct(data) {
+    const accessToken = localStorage.getItem('access_token');
     const formData = new FormData(data);
-    const request = new Request("http://localhost:8080/v1/products", {
+    const request = new Request("http://8080/api/v1/products", {
         method: "POST",
+        headers: {
+            "Authorization": `Bearer ${accessToken}`
+        },
         body: formData
     });
 
     try {
         const response = await fetch(request);
         if (!response.ok) {
-            const errorText = await response.text(); // untuk error message dari server jika ada
+            const errorText = await response.text();
             throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
         }
 
         const data = await response.json();
         return data.data;
     } catch (error) {
-        console.error("Fetch error in addProduct:", error.message);
         return null;
     }
 }
 
 export async function deleteProduct(id) {
-    const request = new Request(`http://localhost:8080/v1/products/${id}`, {
-        method: "DELETE"
+    const accessToken = localStorage.getItem('access_token');
+    const request = new Request(`http://localhost:8080/api/v1/products/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${accessToken}`
+        }
     });
 
     try {
@@ -55,14 +63,17 @@ export async function deleteProduct(id) {
         }
         return true;
     } catch (error) {
-        console.error("Fetch error in deleteProduct:", error.message);
         return false;
     }
 }
 
 export async function updateProduct(id, formData) {
-    const request = new Request(`http://localhost:8080/v1/products/${id}`, {
+    const accessToken = localStorage.getItem('access_token');
+    const request = new Request(`http://localhost:8080/api/v1/products/${id}`, {
         method: "PUT",
+        headers: {
+            "Authorization": `Bearer ${accessToken}`
+        },
         body: formData
     });
 
@@ -75,7 +86,6 @@ export async function updateProduct(id, formData) {
         const data = await response.json();
         return data.data;
     } catch (error) {
-        console.error("Fetch error in updateProduct:", error.message);
         return null;
     }
 }
