@@ -1,3 +1,11 @@
+function handleUnauthorized(status) {
+    if (status === 401) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        window.location.reload();
+    }
+}
+
 async function getProducts() {
     const accessToken = localStorage.getItem('access_token');
     const request = new Request("http://localhost:8080/api/v1/products", {
@@ -11,6 +19,7 @@ async function getProducts() {
     try {
         const response = await fetch(request);
         if (!response.ok) {
+            handleUnauthorized(response.status);
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
@@ -24,7 +33,7 @@ async function getProducts() {
 export async function addProduct(data) {
     const accessToken = localStorage.getItem('access_token');
     const formData = new FormData(data);
-    const request = new Request("http://8080/api/v1/products", {
+    const request = new Request("http://localhost:8080/api/v1/products", {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${accessToken}`
@@ -35,6 +44,7 @@ export async function addProduct(data) {
     try {
         const response = await fetch(request);
         if (!response.ok) {
+            handleUnauthorized(response.status);
             const errorText = await response.text();
             throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
         }
@@ -58,6 +68,7 @@ export async function deleteProduct(id) {
     try {
         const response = await fetch(request);
         if (!response.ok) {
+            handleUnauthorized(response.status);
             const errorText = await response.text();
             throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
         }
@@ -80,6 +91,7 @@ export async function updateProduct(id, formData) {
     try {
         const response = await fetch(request);
         if (!response.ok) {
+            handleUnauthorized(response.status);
             const errorText = await response.text();
             throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
         }
