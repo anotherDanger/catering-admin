@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../context/auth'; // Pastikan path ini benar
+import { useAuth } from '../context/auth';
 
 const ProtectedRoute = () => {
   const { user, loadingInitial } = useAuth();

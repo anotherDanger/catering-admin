@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
       
-      const receivedAccessToken = data._token;
+      const receivedAccessToken = data.access_token;
       const receivedUser = data.user || { username: username, role: 'admin' };
 
       localStorage.setItem('access_token', receivedAccessToken);
@@ -62,6 +62,7 @@ export const AuthProvider = ({ children }) => {
 
       setUser(receivedUser);
       setAccessToken(receivedAccessToken);
+      console.log(receivedAccessToken)
 
       navigate('/');
       return receivedUser;
