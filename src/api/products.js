@@ -1,10 +1,23 @@
-function handleUnauthorized(status) {
+async function handleUnauthorized(status) {
     if (status === 401) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
-        window.location.reload();
+      const refreshResponse = await fetch("http://localhost:8081/v1/refresh", {
+        method: "POST",
+        credentials: "include"
+      });
+  
+      if (refreshResponse.ok) {
+        const refreshData = await refreshResponse.json();
+        localStorage.setItem("access_token", refreshData.access_token);
+        localStorage.setItem("user", JSON.stringify(refreshData.user));
+        return;
+      }
+  
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      window.location.reload();
     }
-}
+  }
+  
 
 async function getProducts() {
     const accessToken = localStorage.getItem('access_token');
@@ -13,6 +26,7 @@ async function getProducts() {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${accessToken}`
         },
+        credentials: "include",
         method: "GET"
     });
 
@@ -38,6 +52,7 @@ export async function addProduct(data) {
         headers: {
             "Authorization": `Bearer ${accessToken}`
         },
+        credentials: "include",
         body: formData
     });
 
@@ -62,7 +77,8 @@ export async function deleteProduct(id) {
         method: "DELETE",
         headers: {
             "Authorization": `Bearer ${accessToken}`
-        }
+        },
+        credentials: "include",
     });
 
     try {
@@ -85,6 +101,7 @@ export async function updateProduct(id, formData) {
         headers: {
             "Authorization": `Bearer ${accessToken}`
         },
+        credentials: "include",
         body: formData
     });
 
