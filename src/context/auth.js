@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
 
       const response = await fetch('http://localhost:8080/v1/login', {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       });
 
@@ -52,21 +53,29 @@ export const AuthProvider = ({ children }) => {
         throw new Error(errorData.message || 'Login failed');
       }
 
-      const data = await response.json();
-      
-      const receivedAccessToken = data.access_token;
-      const receivedUser = data.user || { username: username, role: 'admin' };
+      const loginData = await response.json();
 
-      localStorage.setItem('access_token', receivedAccessToken);
-      localStorage.setItem('user', JSON.stringify(receivedUser));
+      const authResponse = await fetch('http://localhost:8081/v1/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+        credentials: 'include',
+      });
 
-      setUser(receivedUser);
-      setAccessToken(receivedAccessToken);
-      console.log(receivedAccessToken)
+      if (!authResponse.ok) {
+        throw new Error('Auth service failed');
+      }
+
+      const tokenData = await authResponse.json();
+
+      localStorage.setItem('access_token', tokenData.access_token);
+      localStorage.setItem('user', JSON.stringify({ username }));
+
+      setUser({ username });
+      setAccessToken(tokenData.access_token);
 
       navigate('/');
-      return receivedUser;
-
+      return { username };
     } catch (err) {
       throw err;
     }
@@ -75,10 +84,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
-    
     setUser(null);
     setAccessToken(null);
-    
     navigate('/login');
   };
 

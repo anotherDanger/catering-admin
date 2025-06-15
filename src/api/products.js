@@ -11,10 +11,11 @@ async function handleUnauthorized(status) {
         localStorage.setItem("user", JSON.stringify(refreshData.user));
         return;
       }
-  
+      
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
-      window.location.reload();
+      window.location.href = "/login";
+      
     }
   }
   
