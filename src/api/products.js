@@ -1,123 +1,100 @@
-async function handleUnauthorized(status) {
-    if (status === 401) {
-      const refreshResponse = await fetch("http://localhost:8081/v1/refresh", {
-        method: "POST",
-        credentials: "include"
-      });
+async function tryRefreshToken() {
+    const refreshResponse = await fetch("http://localhost:8081/v1/refresh", {
+      method: "POST",
+      credentials: "include"
+    });
   
-      if (refreshResponse.ok) {
-        const refreshData = await refreshResponse.json();
-        localStorage.setItem("access_token", refreshData.access_token);
-        localStorage.setItem("user", JSON.stringify(refreshData.user));
-        return;
-      }
-      
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-      
+    if (refreshResponse.ok) {
+      const refreshData = await refreshResponse.json();
+      localStorage.setItem("access_token", refreshData.access_token);
+      localStorage.setItem("user", JSON.stringify(refreshData.user));
+      return true;
     }
+  
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+    return false;
   }
   
-
-async function getProducts() {
-    const accessToken = localStorage.getItem('access_token');
-    const request = new Request("http://localhost:8080/api/v1/products", {
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`
-        },
-        credentials: "include",
-        method: "GET"
-    });
-
-    try {
-        const response = await fetch(request);
-        if (!response.ok) {
-            handleUnauthorized(response.status);
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.data;
-    } catch (error) {
-        return null;
+  function isTokenExpired(token) {
+    if (!token) return true;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return (payload.exp * 1000) < Date.now();
+  }
+  
+  async function authorizedFetch(input, init = {}, retry = true) {
+    const token = localStorage.getItem("access_token");
+    if (!token || isTokenExpired(token)) {
+      const refreshed = await tryRefreshToken();
+      if (!refreshed) return;
     }
-}
-
-export async function addProduct(data) {
-    const accessToken = localStorage.getItem('access_token');
+  
+    const accessToken = localStorage.getItem("access_token");
+    init.headers = {
+      ...(init.headers || {}),
+      Authorization: `Bearer ${accessToken}`
+    };
+    init.credentials = "include";
+  
+    const response = await fetch(input, init);
+  
+    if (response.status === 401 && retry) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        return authorizedFetch(input, init, false);
+      }
+    }
+  
+    return response;
+  }
+  
+  export async function getProducts() {
+    const response = await authorizedFetch("http://localhost:8080/api/v1/products", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+  
+    if (!response || !response.ok) return null;
+  
+    const data = await response.json();
+    return data.data;
+  }
+  
+  export async function addProduct(data) {
     const formData = new FormData(data);
-    const request = new Request("http://localhost:8080/api/v1/products", {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${accessToken}`
-        },
-        credentials: "include",
-        body: formData
+    const response = await authorizedFetch("http://localhost:8080/api/v1/products", {
+      method: "POST",
+      body: formData
     });
-
-    try {
-        const response = await fetch(request);
-        if (!response.ok) {
-            handleUnauthorized(response.status);
-            const errorText = await response.text();
-            throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.data;
-    } catch (error) {
-        return null;
-    }
-}
-
-export async function deleteProduct(id) {
-    const accessToken = localStorage.getItem('access_token');
-    const request = new Request(`http://localhost:8080/api/v1/products/${id}`, {
-        method: "DELETE",
-        headers: {
-            "Authorization": `Bearer ${accessToken}`
-        },
-        credentials: "include",
+  
+    if (!response || !response.ok) return null;
+  
+    const dataJson = await response.json();
+    return dataJson.data;
+  }
+  
+  export async function deleteProduct(id) {
+    const response = await authorizedFetch(`http://localhost:8080/api/v1/products/${id}`, {
+      method: "DELETE"
     });
-
-    try {
-        const response = await fetch(request);
-        if (!response.ok) {
-            handleUnauthorized(response.status);
-            const errorText = await response.text();
-            throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
-        }
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
-
-export async function updateProduct(id, formData) {
-    const accessToken = localStorage.getItem('access_token');
-    const request = new Request(`http://localhost:8080/api/v1/products/${id}`, {
-        method: "PUT",
-        headers: {
-            "Authorization": `Bearer ${accessToken}`
-        },
-        credentials: "include",
-        body: formData
+  
+    return response && response.ok;
+  }
+  
+  export async function updateProduct(id, formData) {
+    const response = await authorizedFetch(`http://localhost:8080/api/v1/products/${id}`, {
+      method: "PUT",
+      body: formData
     });
-
-    try {
-        const response = await fetch(request);
-        if (!response.ok) {
-            handleUnauthorized(response.status);
-            const errorText = await response.text();
-            throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
-        }
-        const data = await response.json();
-        return data.data;
-    } catch (error) {
-        return null;
-    }
-}
-
-export default getProducts;
+  
+    if (!response || !response.ok) return null;
+  
+    const dataJson = await response.json();
+    return dataJson.data;
+  }
+  
+  export default getProducts;
+  
