@@ -38,14 +38,13 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const formData = new FormData();
-      formData.append('username', username);
-      formData.append('password', password);
-
       const response = await fetch('http://localhost:8080/v1/login', {
         method: 'POST',
         credentials: 'include',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
       });
 
       if (!response.ok) {
@@ -57,9 +56,11 @@ export const AuthProvider = ({ children }) => {
 
       const authResponse = await fetch('http://localhost:8081/v1/auth', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
         credentials: 'include',
+        body: JSON.stringify({ username }),
       });
 
       if (!authResponse.ok) {

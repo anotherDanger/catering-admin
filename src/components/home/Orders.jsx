@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './order.css';
-import { getOrders } from '../../api/orders';
+import { getOrders, updateOrder } from '../../api/orders';
 
 function Orders() {
   const [orders, setOrders] = useState([]);
+
 
   useEffect(() => {
     getOrders()
@@ -12,10 +13,23 @@ function Orders() {
       });
   }, []);
 
-  const handleDelete = (e) => {
+  // Handle update order status
+  const handleClick = async (e, orderId, newStatus) => {
     e.preventDefault();
-    if (window.confirm('Delete this order?')) {
-      alert('Deleted!');
+
+    if (window.confirm(`Update status for order with ID ${orderId} to ${newStatus}?`)) {
+      const result = await updateOrder(orderId, newStatus);
+      if (result) {
+        alert(`Order ${orderId} status updated to ${newStatus}`);
+
+        setOrders(prev =>
+          prev.map(order =>
+            order.id === orderId ? { ...order, status: newStatus } : order
+          )
+        );
+      } else {
+        alert('Failed to update order status');
+      }
     }
   };
 
@@ -35,15 +49,27 @@ function Orders() {
                     <p><strong>Product Name:</strong> {order.product_name}</p>
                     <p><strong>Quantity:</strong> {order.quantity}</p>
                     <p><strong>Status:</strong> {order.status}</p>
+
+                    {/* Update Status */}
                     <label htmlFor={`status-${order.id}`}>Update Status:</label>
-                    <select name="status" id={`status-${order.id}`} defaultValue={order.status}>
+                    <select 
+                      name="status" 
+                      id={`status-${order.id}`} 
+                      defaultValue={order.status}
+                    >
                       <option disabled value="">-- Select --</option>
                       <option value="pending">Pending</option>
                       <option value="completed">Completed</option>
                     </select>
                     <br /><br />
-                    <input type="submit" className="btn btn-primary" value="Update" />
-                    <button className="btn btn-danger mx-2" onClick={handleDelete}>Delete</button>
+                    {/* Tombol Update */}
+                    <button 
+                      type="button" 
+                      className="btn btn-primary" 
+                      onClick={(e) => handleClick(e, order.id, document.getElementById(`status-${order.id}`).value)}
+                    >
+                      Update
+                    </button>
                   </div>
                 </div>
               </form>
