@@ -47,6 +47,50 @@ export async function getOrders() {
   return data.data;
 }
 
+export async function getOrdersByUsername(username) {
+  let response = await fetch(`http://localhost:8080/api/v1/orders/user/${username}`, {
+    method: "GET",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    credentials: "include"
+  });
+
+  if (response.status === 401) {
+    const refreshed = await tryRefreshToken();
+    if (!refreshed) return null;
+    response = await fetch(`http://localhost:8080/api/v1/orders/user/${username}`, {
+      method: "GET",
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      credentials: "include"
+    });
+  }
+
+  if (!response.ok) return null;
+  const data = await response.json();
+  return data.data;
+}
+
+export async function getOrderById(id) {
+  let response = await fetch(`http://localhost:8080/api/v1/orders/${id}`, {
+    method: "GET",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    credentials: "include"
+  });
+
+  if (response.status === 401) {
+    const refreshed = await tryRefreshToken();
+    if (!refreshed) return null;
+    response = await fetch(`http://localhost:8080/api/v1/orders/${id}`, {
+      method: "GET",
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      credentials: "include"
+    });
+  }
+
+  if (!response.ok) return null;
+  const data = await response.json();
+  return data.data;
+}
+
 export async function addOrder(data) {
   const formData = new FormData(data);
   let response = await fetch("http://localhost:8080/api/v1/orders", {
@@ -105,9 +149,6 @@ export async function updateOrder(id, data) {
     message: json?.status || "Update berhasil",
   };
 }
-
-
-
 
 export async function deleteOrder(id) {
   let response = await fetch(`http://localhost:8080/api/v1/orders/${id}`, {
