@@ -6,6 +6,7 @@ import Orders from "./components/home/Orders";
 import Products from "./components/home/Products";
 import LoginPage from "./components/login/LoginPage";
 import { AuthProvider } from "./context/auth";
+import Users from "./components/home/Users";
 
 async function refreshToken() {
   const response = await fetch("http://localhost:8081/v1/refresh", {
@@ -60,6 +61,7 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="orders" element={<Orders />} />
             <Route path="products" element={<Products />} />
+            <Route path="users" element={<Users />} />
           </Route>
         </Route>
 
