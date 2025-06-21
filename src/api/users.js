@@ -47,7 +47,31 @@ async function tryRefreshToken() {
     
     return data.data;
   }
+
+  export async function getUserByUsername(username) {
+    let response = await fetch(`http://localhost:8080/api/v1/users/${encodeURIComponent(username)}`, {
+      method: "GET",
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      credentials: "include"
+    });
   
+    if (response.status === 401) {
+      const refreshed = await tryRefreshToken();
+      if (!refreshed) return null;
+  
+      response = await fetch(`http://localhost:8080/api/v1/users/${encodeURIComponent(username)}`, {
+        method: "GET",
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
+        credentials: "include"
+      });
+    }
+  
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.data;
+  }
+  
+
   export default getUsers;
   
   
