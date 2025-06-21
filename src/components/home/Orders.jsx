@@ -1,21 +1,56 @@
 import React, { useEffect, useState } from 'react';
 import './order.css';
-import { getOrders } from '../../api/orders';
+import { getOrders, updateOrder, deleteOrder } from '../../api/orders';
 
 function Orders() {
   const [orders, setOrders] = useState([]);
+  const [updateErrors, setUpdateErrors] = useState({});
 
   useEffect(() => {
-    getOrders()
-      .then((data) => {
-        if (data) setOrders(data);
-      });
+    getOrders().then((data) => {
+      if (data) setOrders(data);
+    });
   }, []);
 
-  const handleDelete = (e) => {
+  const handleUpdate = async (e, id) => {
     e.preventDefault();
-    if (window.confirm('Delete this order?')) {
-      alert('Deleted!');
+    const form = e.target;
+    const status = form.status.value.trim();
+  
+    if (!status) {
+      setUpdateErrors((prev) => ({ ...prev, [id]: "Status wajib dipilih." }));
+      return;
+    }
+  
+    setUpdateErrors((prev) => ({ ...prev, [id]: null }));
+  
+    try {
+      const result = await updateOrder(id, { status });
+  
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+  
+      const freshOrders = await getOrders();
+      if (freshOrders) setOrders(freshOrders);
+      alert("Order berhasil diperbarui!");
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+  
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this order?")) {
+      try {
+        const deleted = await deleteOrder(id);
+        if (!deleted) throw new Error("Gagal menghapus order, coba lagi.");
+
+        setOrders((prev) => prev.filter((order) => order.id !== id));
+        alert("Order berhasil dihapus!");
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
     }
   };
 
@@ -26,7 +61,7 @@ function Orders() {
         <div className="row mx-2 justify-content-center">
           {orders.map((order) => (
             <div className="col-md-4 text-center" key={order.id}>
-              <form className="order-form">
+              <form className="order-form" onSubmit={(e) => handleUpdate(e, order.id)}>
                 <div className="card text-center p-4">
                   <div className="card-body">
                     <input type="hidden" name="transaction_id" value={order.id} />
@@ -41,9 +76,17 @@ function Orders() {
                       <option value="pending">Pending</option>
                       <option value="completed">Completed</option>
                     </select>
-                    <br /><br />
-                    <input type="submit" className="btn btn-primary" value="Update" />
-                    <button className="btn btn-danger mx-2" onClick={handleDelete}>Delete</button>
+                    {updateErrors[order.id] && (
+                      <small className="text-danger d-block mb-2">{updateErrors[order.id]}</small>
+                    )}
+                    <input type="submit" className="btn btn-primary mt-2" value="Update" />
+                    <button
+                      type="button"
+                      className="btn btn-danger mx-2 mt-2"
+                      onClick={() => handleDelete(order.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </form>
