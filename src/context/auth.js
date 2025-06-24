@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:8080/v1/login', {
+      const response = await fetch('https://khatering.shop/v1/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
       const loginData = await response.json();
 
-      const authResponse = await fetch('http://localhost:8081/v1/auth', {
+      const authResponse = await fetch('https://khatering.shop/v1/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

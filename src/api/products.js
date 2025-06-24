@@ -116,4 +116,14 @@ export async function updateProduct(id, formData) {
   return dataJson.data;
 }
 
+export async function getProductImage(filename) {
+  const response = await fetch(`http://localhost:8080/images/${filename}`, {
+    method: "GET"
+  });
+
+  if (!response.ok) return null;
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+}
+
 export default getProducts;

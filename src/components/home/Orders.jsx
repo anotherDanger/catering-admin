@@ -12,6 +12,7 @@ function Orders() {
   const [orders, setOrders] = useState([]);
   const [updateErrors, setUpdateErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
 
   const fetchAllOrders = async () => {
@@ -25,8 +26,8 @@ function Orders() {
     fetchAllOrders();
   }, []);
 
-  const handleSearch = async (e) => {
-    const term = e.target.value.trim();
+  const handleSearch = async () => {
+    const term = inputValue.trim();
     setSearchTerm(term);
     setLoading(true);
 
@@ -46,7 +47,14 @@ function Orders() {
       const data = await getOrdersByUsername(term);
       setOrders(data || []);
     }
+
     setLoading(false);
+  };
+
+  const handleReset = async () => {
+    setInputValue('');
+    setSearchTerm('');
+    await fetchAllOrders();
   };
 
   const handleUpdate = async (e, id) => {
@@ -66,7 +74,7 @@ function Orders() {
       if (!result.success) throw new Error(result.message);
       alert("Order berhasil diperbarui!");
       if (searchTerm) {
-        await handleSearch({ target: { value: searchTerm } });
+        await handleSearch();
       } else {
         await fetchAllOrders();
       }
@@ -92,17 +100,29 @@ function Orders() {
     <section>
       <div className="container">
         <h2 className="title text-center my-5">Orders</h2>
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search by username or id"
-            className="form-control"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+
+        <div className="row justify-content-center mb-4">
+          <div className="col-md-6">
+            <div className="input-group">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search by username or id"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+              />
+              <button className="btn btn-primary" type="button" onClick={handleSearch}>
+                Search
+              </button>
+              <button className="btn btn-secondary" type="button" onClick={handleReset}>
+                Reset
+              </button>
+            </div>
+          </div>
         </div>
+
         {loading && <p className="text-center">Loading...</p>}
-        <div className="row mx-2 justify-content-center">
+        <div className="row mx-2 justify-content-center gy-4">
           {!loading && orders.length === 0 && <p className="text-center">No orders found.</p>}
           {orders.map((order) => (
             <div className="col-md-4 text-center" key={order.id}>
@@ -124,14 +144,16 @@ function Orders() {
                     {updateErrors[order.id] && (
                       <small className="text-danger d-block mb-2">{updateErrors[order.id]}</small>
                     )}
-                    <input type="submit" className="btn btn-primary mt-2" value="Update" />
-                    <button
-                      type="button"
-                      className="btn btn-danger mx-2 mt-2"
-                      onClick={() => handleDelete(order.id)}
-                    >
-                      Delete
-                    </button>
+                    <div className="d-flex justify-content-center mt-2 gap-2">
+                      <input type="submit" className="btn btn-primary" value="Update" />
+                      <button
+                        type="button"
+                        className="btn btn-danger"
+                        onClick={() => handleDelete(order.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </form>
