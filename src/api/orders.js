@@ -1,5 +1,5 @@
 async function tryRefreshToken() {
-  const refreshResponse = await fetch("http://212.85.27.181:8081/v1/refresh", {
+  const refreshResponse = await fetch("https://khatering.shop/v1/refresh", {
     method: "POST",
     credentials: "include"
   });
@@ -26,7 +26,7 @@ function getAuthHeaders(extraHeaders = {}) {
 }
 
 export async function getOrders() {
-  let response = await fetch("http://212.85.27.181:8082/api/v1/orders", {
+  let response = await fetch("https://khatering.shop/api/v1/orders", {
     method: "GET",
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
     credentials: "include"
@@ -35,7 +35,7 @@ export async function getOrders() {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return null;
-    response = await fetch("http://212.85.27.181:8082/api/v1/orders", {
+    response = await fetch("https://khatering.shop/api/v1/orders", {
       method: "GET",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       credentials: "include"
@@ -48,7 +48,7 @@ export async function getOrders() {
 }
 
 export async function getOrdersByUsername(username) {
-  let response = await fetch(`http://212.85.27.181:8082/api/v1/orders/user/${username}`, {
+  let response = await fetch(`https://khatering.shop/api/v1/orders/user/${username}`, {
     method: "GET",
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
     credentials: "include"
@@ -57,7 +57,7 @@ export async function getOrdersByUsername(username) {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return null;
-    response = await fetch(`http://212.85.27.181:8082/api/v1/orders/user/${username}`, {
+    response = await fetch(`https://khatering.shop/v1/orders/user/${username}`, {
       method: "GET",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       credentials: "include"
@@ -70,7 +70,7 @@ export async function getOrdersByUsername(username) {
 }
 
 export async function getOrderById(id) {
-  let response = await fetch(`http://212.85.27.181:8082/api/v1/orders/${id}`, {
+  let response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
     method: "GET",
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
     credentials: "include"
@@ -79,7 +79,7 @@ export async function getOrderById(id) {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return null;
-    response = await fetch(`http://212.85.27.181:8082/api/v1/orders/${id}`, {
+    response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
       method: "GET",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       credentials: "include"
@@ -93,7 +93,7 @@ export async function getOrderById(id) {
 
 export async function addOrder(data) {
   const formData = new FormData(data);
-  let response = await fetch("http://212.85.27.181:8082/api/v1/orders", {
+  let response = await fetch("https://khatering.shop/api/v1/orders", {
     method: "POST",
     body: formData,
     headers: getAuthHeaders(),
@@ -103,7 +103,7 @@ export async function addOrder(data) {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return null;
-    response = await fetch("http://212.85.27.181:8082/api/v1/orders", {
+    response = await fetch("https://khatering.shop/api/v1/orders", {
       method: "POST",
       body: formData,
       headers: getAuthHeaders(),
@@ -117,7 +117,7 @@ export async function addOrder(data) {
 }
 
 export async function updateOrder(id, data) {
-  let response = await fetch(`http://212.85.27.181:8082/api/v1/orders/${id}`, {
+  let response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
     method: "PUT",
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
     credentials: "include",
@@ -127,7 +127,7 @@ export async function updateOrder(id, data) {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return { success: false, message: "Unauthorized" };
-    response = await fetch(`http://212.85.27.181:8082/api/v1/orders/${id}`, {
+    response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
       method: "PUT",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       credentials: "include",
