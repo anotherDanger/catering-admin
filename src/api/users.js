@@ -1,5 +1,5 @@
 async function tryRefreshToken() {
-    const refreshResponse = await fetch("http://localhost:8081/v1/refresh", {
+    const refreshResponse = await fetch("https://khatering.shop/v1/refresh", {
       method: "POST",
       credentials: "include"
     });
@@ -26,7 +26,7 @@ async function tryRefreshToken() {
   }
   
   export async function getUsers() {
-    let response = await fetch("http://localhost:8080/api/v1/users", {
+    let response = await fetch("https://khatering.shop/api/v1/users", {
       method: "GET",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       credentials: "include"
@@ -35,7 +35,7 @@ async function tryRefreshToken() {
     if (response.status === 401) {
       const refreshed = await tryRefreshToken();
       if (!refreshed) return null;
-      response = await fetch("http://localhost:8080/api/v1/users", {
+      response = await fetch("https://khatering.shop/api/v1/users", {
         method: "GET",
         headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include"
@@ -49,7 +49,7 @@ async function tryRefreshToken() {
   }
 
   export async function getUserByUsername(username) {
-    let response = await fetch(`http://localhost:8080/api/v1/users/${encodeURIComponent(username)}`, {
+    let response = await fetch(`https://khatering.shop/api/v1/users/${encodeURIComponent(username)}`, {
       method: "GET",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       credentials: "include"
@@ -59,7 +59,7 @@ async function tryRefreshToken() {
       const refreshed = await tryRefreshToken();
       if (!refreshed) return null;
   
-      response = await fetch(`http://localhost:8080/api/v1/users/${encodeURIComponent(username)}`, {
+      response = await fetch(`https://khatering.shop/api/v1/users/${encodeURIComponent(username)}`, {
         method: "GET",
         headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include"
