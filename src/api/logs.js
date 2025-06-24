@@ -26,7 +26,7 @@ export async function tryRefreshToken() {
   }
   
   export async function getLogs() {
-    let response = await fetch("http://212.85.27.181:8080/api/v1/logs", {
+    let response = await fetch("https://khatering.shop/api/v1/logs", {
       method: "GET",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       credentials: "include"
@@ -35,7 +35,7 @@ export async function tryRefreshToken() {
     if (response.status === 401) {
       const refreshed = await tryRefreshToken();
       if (!refreshed) return null;
-      response = await fetch("http://212.85.27.181:8080/api/v1/logs", {
+      response = await fetch("https://khatering.shop/api/v1/logs", {
         method: "GET",
         headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include"

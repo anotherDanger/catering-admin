@@ -5,7 +5,7 @@ function Navbar() {
 
     const handleLogout = async () => {
         try {
-            await fetch("http://localhost:8081/v1/logout", {
+            await fetch("https://khatering.shop/v1/logout", {
                 method: "POST",
                 credentials: "include"
             });
