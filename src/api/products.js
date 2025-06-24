@@ -1,5 +1,5 @@
 async function tryRefreshToken() {
-  const refreshResponse = await fetch("http://localhost:8081/v1/refresh", {
+  const refreshResponse = await fetch("https://khatering.shop/v1/refresh", {
     method: "POST",
     credentials: "include"
   });
@@ -26,7 +26,7 @@ function getAuthHeaders(extraHeaders = {}) {
 }
 
 export async function getProducts() {
-  let response = await fetch("http://localhost:8080/api/v1/products", {
+  let response = await fetch("https://khatering.shop/api/v1/products", {
     method: "GET",
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
     credentials: "include"
@@ -35,7 +35,7 @@ export async function getProducts() {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return null;
-    response = await fetch("http://localhost:8080/api/v1/products", {
+    response = await fetch("https://khatering.shop/api/v1/products", {
       method: "GET",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       credentials: "include"
@@ -49,7 +49,7 @@ export async function getProducts() {
 
 export async function addProduct(data) {
   const formData = new FormData(data);
-  let response = await fetch("http://localhost:8080/api/v1/products", {
+  let response = await fetch("https://khatering.shop/api/v1/products", {
     method: "POST",
     body: formData,
     headers: getAuthHeaders(),
@@ -59,7 +59,7 @@ export async function addProduct(data) {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return null;
-    response = await fetch("http://localhost:8080/api/v1/products", {
+    response = await fetch("https://khatering.shop/api/v1/products", {
       method: "POST",
       body: formData,
       headers: getAuthHeaders(),
@@ -73,7 +73,7 @@ export async function addProduct(data) {
 }
 
 export async function deleteProduct(id) {
-  let response = await fetch(`http://localhost:8080/api/v1/products/${id}`, {
+  let response = await fetch(`https://khatering.shop/api/v1/products/${id}`, {
     method: "DELETE",
     headers: getAuthHeaders(),
     credentials: "include"
@@ -82,7 +82,7 @@ export async function deleteProduct(id) {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return false;
-    response = await fetch(`http://localhost:8080/api/v1/products/${id}`, {
+    response = await fetch(`https://khatering.shop/api/v1/products/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
       credentials: "include"
@@ -93,7 +93,7 @@ export async function deleteProduct(id) {
 }
 
 export async function updateProduct(id, formData) {
-  let response = await fetch(`http://localhost:8080/api/v1/products/${id}`, {
+  let response = await fetch(`https://khatering.shop/api/v1/products/${id}`, {
     method: "PUT",
     body: formData,
     headers: getAuthHeaders(),
@@ -103,7 +103,7 @@ export async function updateProduct(id, formData) {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return null;
-    response = await fetch(`http://localhost:8080/api/v1/products/${id}`, {
+    response = await fetch(`https://khatering.shop/api/v1/products/${id}`, {
       method: "PUT",
       body: formData,
       headers: getAuthHeaders(),
@@ -117,7 +117,7 @@ export async function updateProduct(id, formData) {
 }
 
 export async function getProductImage(filename) {
-  const response = await fetch(`http://localhost:8080/images/${filename}`, {
+  const response = await fetch(`https://khatering.shop/images/${filename}`, {
     method: "GET"
   });
 
