@@ -10,7 +10,7 @@ import Users from "./components/home/Users";
 import Logs from "./components/home/Logs";
 
 async function refreshToken() {
-  const response = await fetch("http://212.85.27.181:8081/v1/refresh", {
+  const response = await fetch("https://khatering.shop/v1/refresh", {
     method: "POST",
     credentials: "include",
   });
