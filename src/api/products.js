@@ -11,9 +11,9 @@ async function tryRefreshToken() {
     return true;
   }
 
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("user");
-  window.location.href = "/login";
+  // localStorage.removeItem("access_token");
+  // localStorage.removeItem("user");
+  // window.location.href = "/login";
   return false;
 }
 
