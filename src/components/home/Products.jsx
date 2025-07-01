@@ -119,7 +119,6 @@ function Products() {
     else if (!/^[A-Za-z\s]+$/.test(name)) newErrors.name = "Nama hanya boleh huruf dan spasi.";
     else if (name.length < 5) newErrors.name = "Nama minimal 5 karakter.";
     else if (name.length > 50) newErrors.name = "Nama maksimal 50 karakter.";
-    if (description && !/^[A-Za-z0-9\s]+$/.test(description)) newErrors.description = "Deskripsi hanya boleh alfanumerik.";
     if (!stock) newErrors.stock = "Stok wajib diisi.";
     else if (isNaN(stock)) newErrors.stock = "Stok harus berupa angka.";
     if (!price) newErrors.price = "Harga wajib diisi.";
