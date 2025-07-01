@@ -116,7 +116,6 @@ function Products() {
     const description = formData.get("description")?.trim();
     const newErrors = {};
     if (!name) newErrors.name = "Nama produk wajib diisi.";
-    else if (!/^[A-Za-z\s]+$/.test(name)) newErrors.name = "Nama hanya boleh huruf dan spasi.";
     else if (name.length < 5) newErrors.name = "Nama minimal 5 karakter.";
     else if (name.length > 50) newErrors.name = "Nama maksimal 50 karakter.";
     if (!stock) newErrors.stock = "Stok wajib diisi.";
