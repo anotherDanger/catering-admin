@@ -72,7 +72,7 @@ export async function getUserByUsername(username) {
 }
 
 export async function deleteUserById(id) {
-  let response = await fetch(`https://khatering.shop/api/v1/users/${id}`, {
+  let response = await fetch(`https://khatering.shop/api/v1/users/delete/${id}`, {
     method: "DELETE",
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
     credentials: "include"
@@ -81,7 +81,7 @@ export async function deleteUserById(id) {
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
     if (!refreshed) return false;
-    response = await fetch(`https://khatering.shop/api/v1/users/${id}`, {
+    response = await fetch(`https://khatering.shop/api/v1/users/delete/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       credentials: "include"
