@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import getUsers, { getUserByUsername } from "../../api/users.js";
+import getUsers, { getUserByUsername, deleteUserById } from "../../api/users.js";
 
 function displayLocalTimeAsWIB(isoString) {
   if (!isoString) return "-";
@@ -40,10 +40,15 @@ function Users() {
     fetchUsers();
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Delete this user?")) {
-      setUsers(prev => prev.filter(user => user.id !== id));
-      alert("User berhasil dihapus! (Secara lokal)");
+      const success = await deleteUserById(id);
+      if (success) {
+        setUsers(prev => prev.filter(user => user.id !== id));
+        alert("User berhasil dihapus!");
+      } else {
+        alert("Gagal menghapus user.");
+      }
     }
   };
 
@@ -73,7 +78,6 @@ function Users() {
     <section>
       <div className="container">
         <h2 className="text-center my-5">Users</h2>
-
         <div className="row justify-content-center mb-4">
           <div className="col-md-6">
             <div className="input-group">
@@ -93,7 +97,6 @@ function Users() {
             </div>
           </div>
         </div>
-
         <div className="row mx-2 justify-content-center">
           {users.length === 0 && <p className="text-center">No users found.</p>}
           {users.map(user => (
