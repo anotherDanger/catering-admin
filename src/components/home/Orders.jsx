@@ -119,7 +119,13 @@ function AddOrderModal({ show, onClose, onSave }) {
                 <div className="col-md-6"><label className="form-label">Desa</label><select className="form-select" name="desa" value={formData.desa} onChange={handleChange} disabled={!formData.kecamatan} required><option value="">Pilih Desa</option>{villages.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}</select></div>
                 <div className="col-md-6"><label className="form-label">Username</label><input type="text" className="form-control" name="username" value={formData.username} onChange={handleChange} required /></div>
                 <div className="col-md-3"><label className="form-label">Quantity</label><input type="number" className="form-control" name="quantity" min="1" value={formData.quantity} onChange={handleChange} required /></div>
-                <div className="col-md-3"><label className="form-label">Total</label><input type="number" className="form-control" name="total" min="0" value={formData.total} onChange={handleChange} required /></div>
+                <div className="col-md-3">
+                  <label className="form-label">Total</label>
+                  <div className="input-group">
+                    <span className="input-group-text">Rp</span>
+                    <input type="number" className="form-control" name="total" min="0" value={formData.total} onChange={handleChange} required />
+                  </div>
+                </div>
                 <div className="col-md-12"><label className="form-label">Status</label><select className="form-select" name="status" value={formData.status} onChange={handleChange} required><option value="pending">Pending</option><option value="completed">Completed</option></select></div>
               </div>
             </div>
