@@ -27,29 +27,33 @@ function getAuthHeaders(extraHeaders = {}) {
 }
 
 async function fetchWithRetry(url, options = {}) {
-    let response = await fetch(url, { 
-        ...options, 
-        headers: getAuthHeaders(options.headers),
-        credentials: "include" 
+  let response = await fetch(url, {
+    ...options,
+    headers: getAuthHeaders(options.headers),
+    credentials: "include"
+  });
+
+  if (response.status === 401) {
+    const refreshed = await tryRefreshToken();
+    if (!refreshed) throw new Error("Sesi berakhir, silakan login kembali.");
+
+    response = await fetch(url, {
+      ...options,
+      headers: getAuthHeaders(options.headers),
+      credentials: "include"
     });
+  }
 
-    if (response.status === 401) {
-        const refreshed = await tryRefreshToken();
-        if (!refreshed) throw new Error("Sesi berakhir, silakan login kembali.");
-        
-        response = await fetch(url, { 
-            ...options, 
-            headers: getAuthHeaders(options.headers),
-            credentials: "include" 
-        });
-    }
-    
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || errorData.status || "Terjadi kesalahan pada server.");
-    }
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || errorData.status || "Terjadi kesalahan pada server.");
+  }
+  
+  if (response.status === 204) {
+    return null;
+  }
 
-    return response.json();
+  return response.json();
 }
 
 export async function getOrders() {
@@ -67,65 +71,25 @@ export async function getOrderById(id) {
   return result.data;
 }
 
-export async function addOrder(formElement) {
-  const formData = new FormData(formElement);
-  
-  let response = await fetch("https://khatering.shop/api/v1/orders", {
-    method: "POST",
-    body: formData,
-    headers: getAuthHeaders(),
-    credentials: "include"
+export async function addOrder(orderData) {
+  return await fetchWithRetry("https://khatering.shop/api/v1/orders", {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(orderData),
   });
-
-  if (response.status === 401) {
-    const refreshed = await tryRefreshToken();
-    if (!refreshed) throw new Error("Sesi berakhir, silakan login kembali.");
-    response = await fetch("https://khatering.shop/api/v1/orders", {
-      method: "POST",
-      body: formData,
-      headers: getAuthHeaders(),
-      credentials: "include"
-    });
-  }
-
-  if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || "Gagal menambahkan order.");
-  }
-  
-  return response.json();
 }
 
 export async function updateOrder(id, data) {
-    const result = await fetchWithRetry(`https://khatering.shop/api/v1/orders/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-    });
-    return result;
+  return await fetchWithRetry(`https://khatering.shop/api/v1/orders/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
 }
 
 export async function deleteOrder(id) {
-  let response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
-    method: "DELETE",
-    headers: getAuthHeaders(),
-    credentials: "include"
+  await fetchWithRetry(`https://khatering.shop/api/v1/orders/${id}`, {
+    method: 'DELETE',
   });
-
-  if (response.status === 401) {
-    const refreshed = await tryRefreshToken();
-    if (!refreshed) throw new Error("Sesi berakhir, silakan login kembali.");
-    response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
-      method: "DELETE",
-      headers: getAuthHeaders(),
-      credentials: "include"
-    });
-  }
-  
-  if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || "Gagal menghapus order.");
-  }
-  
   return true;
 }

@@ -12,9 +12,8 @@ import { fetchDistricts, fetchVillagesByDistrict } from '../../api/wilayah';
 
 function AddOrderModal({ show, onClose, onSave }) {
   const modalRef = useRef(null);
-  const formRef = useRef(null);
   const [modalInstance, setModalInstance] = useState(null);
-  
+
   const initialFormState = {
     product_id: '', product_name: '', name: '', phone: '',
     alamat: '', kecamatan: '', desa: '', username: '',
@@ -73,24 +72,28 @@ function AddOrderModal({ show, onClose, onSave }) {
       setVillages([]);
     }
   }, [formData.kecamatan, districts]);
-  
+
   useEffect(() => {
-    if(!show){
-        setFormData(initialFormState);
-        setVillages([]);
+    if (!show) {
+      setFormData(initialFormState);
+      setVillages([]);
     }
   }, [show]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let processedValue = value;
+    if (name === 'quantity' || name === 'total') {
+        processedValue = parseInt(value, 10) || 0;
+    }
+    setFormData(prev => ({ ...prev, [name]: processedValue }));
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await onSave(formRef.current);
+      await onSave(formData);
       onClose();
     } catch (error) {
       alert(error.message);
@@ -103,13 +106,13 @@ function AddOrderModal({ show, onClose, onSave }) {
     <div className="modal fade" ref={modalRef} tabIndex="-1">
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content">
-          <form onSubmit={handleSubmit} ref={formRef}>
+          <form onSubmit={handleSubmit}>
             <div className="modal-header">
               <h5 className="modal-title">Add New Order</h5>
               <button type="button" className="btn-close" onClick={onClose}></button>
             </div>
             <div className="modal-body">
-               <div className="row g-3">
+              <div className="row g-3">
                 <div className="col-md-6"><label className="form-label">Product ID</label><input type="text" className="form-control" name="product_id" value={formData.product_id} onChange={handleChange} required /></div>
                 <div className="col-md-6"><label className="form-label">Product Name</label><input type="text" className="form-control" name="product_name" value={formData.product_name} onChange={handleChange} required /></div>
                 <div className="col-md-6"><label className="form-label">Name</label><input type="text" className="form-control" name="name" value={formData.name} onChange={handleChange} required /></div>
@@ -197,8 +200,8 @@ function Orders() {
     fetchAllOrders();
   };
 
-  const handleAddOrder = async (formElement) => {
-    await addOrder(formElement);
+  const handleAddOrder = async (orderData) => {
+    await addOrder(orderData);
     alert("Order baru berhasil ditambahkan!");
     await fetchAllOrders();
   };
@@ -259,7 +262,7 @@ function Orders() {
               <form className="order-form h-100" onSubmit={(e) => handleUpdate(e, order.id)}>
                 <div className="card text-center p-3 h-100">
                   <div className="card-body d-flex flex-column">
-                    <p><strong>ID:</strong><br/>{order.id}</p>
+                    <p><strong>ID:</strong><br />{order.id}</p>
                     <p><strong>Username:</strong> {order.username}</p>
                     <p><strong>Product:</strong> {order.product_name}</p>
                     <p><strong>Quantity:</strong> {order.quantity}</p>
