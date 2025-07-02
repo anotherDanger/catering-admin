@@ -13,6 +13,7 @@ import { fetchDistricts, fetchVillagesByDistrict } from '../../api/wilayah';
 function AddOrderModal({ show, onClose, onSave }) {
   const modalRef = useRef(null);
   const formRef = useRef(null);
+  const [modalInstance, setModalInstance] = useState(null);
   
   const initialFormState = {
     product_id: '', product_name: '', name: '', phone: '',
@@ -26,14 +27,20 @@ function AddOrderModal({ show, onClose, onSave }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!modalRef.current) return;
-    const modal = new window.bootstrap.Modal(modalRef.current, { backdrop: 'static', keyboard: false });
-    if (show) {
-      modal.show();
-    } else {
-      modal.hide();
+    if (modalRef.current) {
+      const instance = new window.bootstrap.Modal(modalRef.current);
+      setModalInstance(instance);
     }
-  }, [show]);
+  }, []);
+
+  useEffect(() => {
+    if (!modalInstance) return;
+    if (show) {
+      modalInstance.show();
+    } else {
+      modalInstance.hide();
+    }
+  }, [show, modalInstance]);
 
   useEffect(() => {
     const loadDistricts = async () => {
@@ -66,7 +73,7 @@ function AddOrderModal({ show, onClose, onSave }) {
       setVillages([]);
     }
   }, [formData.kecamatan, districts]);
-
+  
   useEffect(() => {
     if(!show){
         setFormData(initialFormState);

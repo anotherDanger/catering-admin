@@ -19,80 +19,57 @@ async function tryRefreshToken() {
 
 function getAuthHeaders(extraHeaders = {}) {
   const token = localStorage.getItem("access_token");
-  return {
-    ...extraHeaders,
-    Authorization: `Bearer ${token}`
-  };
+  const headers = { ...extraHeaders };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+async function fetchWithRetry(url, options = {}) {
+    let response = await fetch(url, { 
+        ...options, 
+        headers: getAuthHeaders(options.headers),
+        credentials: "include" 
+    });
+
+    if (response.status === 401) {
+        const refreshed = await tryRefreshToken();
+        if (!refreshed) throw new Error("Sesi berakhir, silakan login kembali.");
+        
+        response = await fetch(url, { 
+            ...options, 
+            headers: getAuthHeaders(options.headers),
+            credentials: "include" 
+        });
+    }
+    
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.status || "Terjadi kesalahan pada server.");
+    }
+
+    return response.json();
 }
 
 export async function getOrders() {
-  let response = await fetch("https://khatering.shop/api/v1/orders", {
-    method: "GET",
-    headers: getAuthHeaders({ "Content-Type": "application/json" }),
-    credentials: "include"
-  });
-
-  if (response.status === 401) {
-    const refreshed = await tryRefreshToken();
-    if (!refreshed) return null;
-    response = await fetch("https://khatering.shop/api/v1/orders", {
-      method: "GET",
-      headers: getAuthHeaders({ "Content-Type": "application/json" }),
-      credentials: "include"
-    });
-  }
-
-  if (!response.ok) return null;
-  const data = await response.json();
-  return data.data;
+  const result = await fetchWithRetry("https://khatering.shop/api/v1/orders");
+  return result.data;
 }
 
 export async function getOrdersByUsername(username) {
-  let response = await fetch(`https://khatering.shop/api/v1/orders/user/${username}`, {
-    method: "GET",
-    headers: getAuthHeaders({ "Content-Type": "application/json" }),
-    credentials: "include"
-  });
-
-  if (response.status === 401) {
-    const refreshed = await tryRefreshToken();
-    if (!refreshed) return null;
-    response = await fetch(`https://khatering.shop/v1/orders/user/${username}`, {
-      method: "GET",
-      headers: getAuthHeaders({ "Content-Type": "application/json" }),
-      credentials: "include"
-    });
-  }
-
-  if (!response.ok) return null;
-  const data = await response.json();
-  return data.data;
+  const result = await fetchWithRetry(`https://khatering.shop/api/v1/orders/user/${username}`);
+  return result.data;
 }
 
 export async function getOrderById(id) {
-  let response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
-    method: "GET",
-    headers: getAuthHeaders({ "Content-Type": "application/json" }),
-    credentials: "include"
-  });
-
-  if (response.status === 401) {
-    const refreshed = await tryRefreshToken();
-    if (!refreshed) return null;
-    response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
-      method: "GET",
-      headers: getAuthHeaders({ "Content-Type": "application/json" }),
-      credentials: "include"
-    });
-  }
-
-  if (!response.ok) return null;
-  const data = await response.json();
-  return data.data;
+  const result = await fetchWithRetry(`https://khatering.shop/api/v1/orders/${id}`);
+  return result.data;
 }
 
-export async function addOrder(data) {
-  const formData = new FormData(data);
+export async function addOrder(formElement) {
+  const formData = new FormData(formElement);
+  
   let response = await fetch("https://khatering.shop/api/v1/orders", {
     method: "POST",
     body: formData,
@@ -102,7 +79,7 @@ export async function addOrder(data) {
 
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
-    if (!refreshed) return null;
+    if (!refreshed) throw new Error("Sesi berakhir, silakan login kembali.");
     response = await fetch("https://khatering.shop/api/v1/orders", {
       method: "POST",
       body: formData,
@@ -111,47 +88,25 @@ export async function addOrder(data) {
     });
   }
 
-  if (!response.ok) return null;
-  const dataJson = await response.json();
-  return dataJson.data;
+  if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Gagal menambahkan order.");
+  }
+  
+  return response.json();
 }
 
 export async function updateOrder(id, data) {
-  let response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders({ "Content-Type": "application/json" }),
-    credentials: "include",
-    body: JSON.stringify(data),
-  });
-
-  if (response.status === 401) {
-    const refreshed = await tryRefreshToken();
-    if (!refreshed) return { success: false, message: "Unauthorized" };
-    response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
-      method: "PUT",
-      headers: getAuthHeaders({ "Content-Type": "application/json" }),
-      credentials: "include",
-      body: JSON.stringify(data),
+    const result = await fetchWithRetry(`https://khatering.shop/api/v1/orders/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
     });
-  }
-
-  const json = await response.json();
-
-  if (!response.ok) {
-    return {
-      success: false,
-      message: json?.status || "Unknown error",
-    };
-  }
-
-  return {
-    success: true,
-    message: json?.status || "Update berhasil",
-  };
+    return result;
 }
 
 export async function deleteOrder(id) {
-  let response = await fetch(`http://212.85.27.181:8082/api/v1/orders/${id}`, {
+  let response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
     method: "DELETE",
     headers: getAuthHeaders(),
     credentials: "include"
@@ -159,17 +114,18 @@ export async function deleteOrder(id) {
 
   if (response.status === 401) {
     const refreshed = await tryRefreshToken();
-    if (!refreshed) return false;
-    response = await fetch(`http://212.85.27.181:8082/api/v1/orders/${id}`, {
+    if (!refreshed) throw new Error("Sesi berakhir, silakan login kembali.");
+    response = await fetch(`https://khatering.shop/api/v1/orders/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
       credentials: "include"
     });
   }
-
-  return response.ok;
+  
+  if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Gagal menghapus order.");
+  }
+  
+  return true;
 }
-
-
-
-export default getOrders;
