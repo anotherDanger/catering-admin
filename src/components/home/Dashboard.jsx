@@ -88,7 +88,7 @@ function Dashboard() {
           <h1 className="fw-bold">Dashboard Produk</h1>
         </div>
         <div className="container mt-5">
-          <div className="row g-4">
+          {/* <div className="row g-4">
             <div className="col-md-6 col-lg-3">
               <div className="card card-stat bg-primary text-white text-center p-4">
                 <div className="card-body">
@@ -128,7 +128,7 @@ function Dashboard() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className="mt-5">
             <Line data={chartData} options={options} />
